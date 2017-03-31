@@ -1,0 +1,13 @@
+OFFICIAL_GENE_SYMBOL	Name	Species
+CENPA	histone H3-like centromeric protein A(cenpa)	Danio rerio
+H3F3A	H3 histone, family 3A(h3f3a)	Danio rerio
+H2AFY	H2A histone family, member Y(h2afy)	Danio rerio
+H3F3C	H3 histone, family 3C(h3f3c)	Danio rerio
+H2AFZ	H2A histone family, member Z(h2afz)	Danio rerio
+H2AFX	H2A histone family, member X(h2afx)	Danio rerio
+HIST1H4L	histone 1, H4, like(hist1h4l)	Danio rerio
+HIST1H2BA	histone cluster 1, H2ba(hist1h2ba)	Danio rerio
+H1FX	H1 histone family, member X(h1fx)	Danio rerio
+H1F0	H1 histone family, member 0(h1f0)	Danio rerio
+H2AFY2	H2A histone family, member Y2(h2afy2)	Danio rerio
+HIST2H3C	histone cluster 2, H3c(hist2h3c)	Danio rerio
