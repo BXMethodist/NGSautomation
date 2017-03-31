@@ -3,6 +3,13 @@ import pandas as pd
 
 
 def SRR_single(sample_id, node_id, species='Homo sapien'):
+    """
+        submit a pbs for SRR single end to generate bowtie result
+        :param sample_id: SRR ID
+        :param node_id: specify the node, sometimes some node does not work.
+        :param species: the species, only for human and mouse
+        :return:
+        """
     fastq_dump_cmd = "/home/tmhbxx3/archive/tools/sratoolkit/bin/fastq-dump "
     if species == 'Homo sapiens':
         bowtie_cmd = 'bowtie -p 8 -m 1 --chunkmbs 512 --best /archive/tmhkxc48/ref_data/hg19/bowtie/hg19 '
@@ -34,6 +41,13 @@ def SRR_single(sample_id, node_id, species='Homo sapien'):
     return
 
 def SRR_pair(sample_id, node_id, species='Homo sapien'):
+    """
+        submit a pbs for SRR pair end to generate bowtie result
+        :param sample_id: SRR ID
+        :param node_id: specify the node, sometimes some node does not work.
+        :param species: the species, only for human and mouse
+        :return:
+        """
     fastq_dump_cmd = "/home/tmhbxx3/archive/tools/sratoolkit/bin/fastq-dump --split-3 "
     if species == 'Homo sapiens':
         bowtie_cmd = 'bowtie -p 8 -m 1 --chunkmbs 512 --best /archive/tmhkxc48/ref_data/hg19/bowtie/hg19 '
@@ -66,6 +80,13 @@ def SRR_pair(sample_id, node_id, species='Homo sapien'):
     return
 
 def ENC_pair(sample_id, pair_id, node_id, species='Homo sapien'):
+    """
+    :param sample_id: ENC ID
+    :param pair_id: the corresponding pair_id for pair end sequencing
+    :param node_id: specify the node, sometimes some node does not work.
+    :param species: the species, only for human and mouse
+    :return:
+    """
     if species == 'Homo sapiens':
         bowtie_cmd = 'bowtie -p 8 -m 1 --chunkmbs 512 --best /archive/tmhkxc48/ref_data/hg19/bowtie/hg19 '
     elif species == "Mus musculus":
@@ -101,6 +122,13 @@ def ENC_pair(sample_id, pair_id, node_id, species='Homo sapien'):
     return
 
 def ENC_single(sample_id, node_id, species='Homo sapien'):
+    """
+    submit a pbs for ENCODE single end to generate bowtie result
+    :param sample_id: ENC ID
+    :param node_id: specify the node, sometimes some node does not work.
+    :param species: the species, only for human and mouse
+    :return:
+    """
     if species == 'Homo sapiens':
         bowtie_cmd = 'bowtie -p 8 -m 1 --chunkmbs 512 --best /archive/tmhkxc48/ref_data/hg19/bowtie/hg19 '
     elif species == "Mus musculus":
@@ -134,8 +162,8 @@ def ENC_single(sample_id, node_id, species='Homo sapien'):
 def bowtie(search_list, metadata_list):
     """
     run the bowtie for each sample and get the sample input pair list.
-    :param search_list:
-    :param metadata_list:
+    :param search_list: search results from ChipSeqpair search function
+    :param metadata_list: query results from ChipSeqpair query function
     :return: a list of tuples containing pair of sample_id, input_id
     """
     search = pd.read_csv(search_list, index_col=None)
@@ -196,6 +224,6 @@ def bowtie(search_list, metadata_list):
     df.to_csv('sample_input_pair.csv', index=None, header=False)
     return results
 
-bowtie("Search_ResultHomo_sapiensWithBMI1.csv", "BMI1_chipseq_metadata.txt")
+# bowtie("Search_ResultHomo_sapiensWithBMI1.csv", "BMI1_chipseq_metadata.txt")
 
 
