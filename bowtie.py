@@ -197,19 +197,18 @@ def bowtie(search_list, metadata_list):
             continue
         else:
             samples.add(sample_id)
-            if sample_id.startswith('ENC'):
-                if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
-                    ENC_single(sample_id, nodes[node_index], species)
-                elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
-                    pair_id = enc_metadata.ix[sample_id, 'Paired with']
-                    ENC_pair(sample_id, pair_id, nodes[node_index], species)
-            if sample_id.startswith("GSM"):
-                SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
-                if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
-                    SRR_single(SRR_id, node_id=nodes[node_index], species=search.ix[sample_id, 'Organism'])
-                elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
-                    SRR_pair(SRR_id, nodes[node_index], species)
-
+            # if sample_id.startswith('ENC'):
+            #     if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
+            #         ENC_single(sample_id, nodes[node_index], species)
+            #     elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
+            #         pair_id = enc_metadata.ix[sample_id, 'Paired with']
+            #         ENC_pair(sample_id, pair_id, nodes[node_index], species)
+            # if sample_id.startswith("GSM"):
+            #     SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
+            #     if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
+            #         SRR_single(SRR_id, node_id=nodes[node_index], species=species)
+            #     elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
+            #         SRR_pair(SRR_id, nodes[node_index], species)
 
         if pd.isnull(input_id):
             results.append((sample_id, ''))
@@ -219,6 +218,19 @@ def bowtie(search_list, metadata_list):
                 continue
             else:
                 samples.add(input_id)
+                if input_id.startswith('ENC'):
+                    if enc_metadata.ix[input_id, 'Run type'] == 'single-ended':
+                        ENC_single(input_id, nodes[node_index], species)
+                    elif enc_metadata.ix[input_id, 'Run type'] == 'paired-ended':
+                        pair_id = enc_metadata.ix[input_id, 'Paired with']
+                        ENC_pair(input_id, pair_id, nodes[node_index], species)
+                if input_id.startswith("GSM"):
+                    SRR_id = gsm_metadata.ix[input_id, 'Run_ID']
+                    if gsm_metadata.ix[input_id, 'Run type'] == 'SINGLE':
+                        SRR_single(SRR_id, node_id=nodes[node_index], species=species)
+                    elif gsm_metadata.ix[input_id, 'Run type'] == 'PAIRED':
+                        SRR_pair(SRR_id, nodes[node_index], species)
+
 
     df = pd.DataFrame(results)
     df.to_csv('sample_input_pair.csv', index=None, header=False)

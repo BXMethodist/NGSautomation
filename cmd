@@ -204,3 +204,7 @@ track type=bigWig name="HIGH2" description="" visibility=2  db="danRer10" color=
 
 
 python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dregion controlAR:doxAR -b controlAR:controlinput,doxAR:doxinput -u 1 --smooth_width 0 -c 25000000 --frsz 200 --extend 200 --extend_dis 3000 --pheight 1e-8 -ep 1e-5 -o compareclonalcut/dregion_controlAR_doxAR
+
+
+
+tophat --mate-std-dev 200 -p 8 -r 200 -o Sample_B_kd1 /archive/tmhkxc48/ref_data/hg19/bowtie2/hg19 Sample_B_kd1/B_kd1_GCCAAT_L003_R1_001.fastq.gz Sample_B_kd1/B_kd1_GCCAAT_L003_R2_001.fastq.gz
