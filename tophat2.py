@@ -31,7 +31,7 @@ def runTopHatSingle(sample, tophatIndex, node_id):
     :param tophatIndex: tophat index path
     :return:
     """
-    cmd = "tophat2 -p 8 --mate-std-dev 200 -r 200 "
+    cmd = "tophat2 -p 8 "
     if sample.find("/") == -1:
         outputstartindex = 0
     else:
@@ -56,7 +56,7 @@ def runTopHatPair(pair, tophatIndex, node_id):
 
     common_name = find_common(sample1, sample2)
 
-    cmd = "tophat2 -p 8 --mate-std-dev 200 -r 200 "
+    cmd = "tophat2 -p 8 "
     if common_name.find("/") == -1:
         outputstartindex = 0
     else:

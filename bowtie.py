@@ -179,7 +179,7 @@ def bowtie(search_list, metadata_list):
 
     samples = set()
 
-    nodes = [1, 2, 3, 4, 5]
+    nodes = [1, 2, 3, 4, 5, 6]
 
     for i in range(search.shape[0]):
         sample_id = search.ix[i, 'Data_ID']
@@ -188,7 +188,7 @@ def bowtie(search_list, metadata_list):
         if sample_id.startswith('ENC') and not pd.isnull(input_id):
             input_id = input_id[7:-1]
 
-        node_index = i % 5
+        node_index = i % 6
 
         species = search.ix[sample_id, 'Organism']
 
@@ -197,18 +197,19 @@ def bowtie(search_list, metadata_list):
             continue
         else:
             samples.add(sample_id)
-            # if sample_id.startswith('ENC'):
-            #     if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
-            #         ENC_single(sample_id, nodes[node_index], species)
-            #     elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
-            #         pair_id = enc_metadata.ix[sample_id, 'Paired with']
-            #         ENC_pair(sample_id, pair_id, nodes[node_index], species)
-            # if sample_id.startswith("GSM"):
-            #     SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
-            #     if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
-            #         SRR_single(SRR_id, node_id=nodes[node_index], species=species)
-            #     elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
-            #         SRR_pair(SRR_id, nodes[node_index], species)
+            if sample_id.startswith('ENC'):
+                if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
+                    ENC_single(sample_id, nodes[node_index], species)
+                elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
+                    pair_id = enc_metadata.ix[sample_id, 'Paired with']
+                    samples.add(pair_id)
+                    ENC_pair(sample_id, pair_id, nodes[node_index], species)
+            if sample_id.startswith("GSM"):
+                SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
+                if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
+                    SRR_single(SRR_id, node_id=nodes[node_index], species=species)
+                elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
+                    SRR_pair(SRR_id, nodes[node_index], species)
 
         if pd.isnull(input_id):
             results.append((sample_id, ''))
@@ -223,6 +224,7 @@ def bowtie(search_list, metadata_list):
                         ENC_single(input_id, nodes[node_index], species)
                     elif enc_metadata.ix[input_id, 'Run type'] == 'paired-ended':
                         pair_id = enc_metadata.ix[input_id, 'Paired with']
+                        samples.add(pair_id)
                         ENC_pair(input_id, pair_id, nodes[node_index], species)
                 if input_id.startswith("GSM"):
                     SRR_id = gsm_metadata.ix[input_id, 'Run_ID']
@@ -231,11 +233,10 @@ def bowtie(search_list, metadata_list):
                     elif gsm_metadata.ix[input_id, 'Run type'] == 'PAIRED':
                         SRR_pair(SRR_id, nodes[node_index], species)
 
-
     df = pd.DataFrame(results)
     df.to_csv('sample_input_pair.csv', index=None, header=False)
     return results
 
-# bowtie("Search_ResultHomo_sapiensWithBMI1.csv", "BMI1_chipseq_metadata.txt")
+bowtie("Search_ResultHomo_sapiensWithBMI1_ENC.csv", "BMI1_chipseq_metadata.txt")
 
 

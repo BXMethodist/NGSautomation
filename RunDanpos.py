@@ -7,7 +7,7 @@ def danpos_no_input(sample_id, search_df, metadata_df, node_id):
 
     danpos_cmd = 'python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dregion '
     danpos_parameters = ' -u 1 --smooth_width 0 -c 25000000 --frsz 200 --extend 200 ' \
-                        '--extend_dis 3000 --pheight 1e-8 -ep 1e-5 -o ' + os.getcwd() + sample_id
+                        '--extend_dis 3000 --pheight 1e-8 -ep 1e-5 -o ' + os.getcwd() + '/' + sample_id
 
     cmd = danpos_cmd + sample_id+'.bowtie' + danpos_parameters
 
@@ -20,7 +20,7 @@ def danpos_no_input(sample_id, search_df, metadata_df, node_id):
     pbs.write("#PBS -M bxia@houstonmethodist.org\n")
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    # pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
     pbs.write("module load R/3.2.1\n")
@@ -36,7 +36,7 @@ def danpos_input(sample_id, input_id, search_df, metadata_df, node_id):
 
     danpos_cmd = 'python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dregion '
     danpos_parameters = ' -u 1 --smooth_width 0 -c 25000000 --frsz 200 --extend 200 ' \
-                        '--extend_dis 3000 --pheight 1e-8 -ep 1e-5 -o ' + os.getcwd() + sample_id
+                        '--extend_dis 3000 --pheight 1e-8 -ep 1e-5 -o ' + os.getcwd() + '/' + sample_id
 
     cmd = danpos_cmd + sample_id + '.bowtie' +' -b '+ input_id +".bowtie" + danpos_parameters
 
@@ -49,7 +49,7 @@ def danpos_input(sample_id, input_id, search_df, metadata_df, node_id):
     pbs.write("#PBS -M bxia@houstonmethodist.org\n")
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    # pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
     pbs.write("module load R/3.2.1\n")
@@ -70,10 +70,10 @@ def RunDanpos(search, metadata, sample_input="sample_input_pair.csv"):
     metadata_df = pd.read_csv(metadata, index_col=None, sep='\t')
     metadata_df = metadata_df.set_index(['GSM_ID'])
 
-    nodes = [1,2,3,4,5]
+    nodes = [1,2,3,4,5, 6]
 
     for i in range(sample_input_df.shape[0]):
-        node_id = nodes[i%5]
+        node_id = nodes[i%6]
         sample_id = sample_input_df.ix[i, 0]
         input_id = sample_input_df.ix[i, 1]
         if pd.isnull(input_id):
@@ -82,4 +82,4 @@ def RunDanpos(search, metadata, sample_input="sample_input_pair.csv"):
             danpos_input(sample_id, input_id, search_df, metadata_df, node_id)
 
 
-RunDanpos("Search_ResultHomo_sapiensWithBMI1.csv", "BMI1_chipseq_metadata.txt")
+RunDanpos("Search_ResultHomo_sapiensWithBMI1_ENC.csv", "BMI1_chipseq_metadata.txt")

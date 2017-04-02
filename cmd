@@ -208,3 +208,7 @@ python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dregion controlAR:doxAR -b 
 
 
 tophat --mate-std-dev 200 -p 8 -r 200 -o Sample_B_kd1 /archive/tmhkxc48/ref_data/hg19/bowtie2/hg19 Sample_B_kd1/B_kd1_GCCAAT_L003_R1_001.fastq.gz Sample_B_kd1/B_kd1_GCCAAT_L003_R2_001.fastq.gz
+
+ENCFF340BKZ.bowtie -b ENCFF647DBV.bowtie
+ENCFF304NDL.bowtie -b ENCFF829GAK.bowtie
+ENCFF580NZZ.bowtie -b ENCFF349FFX.bowtie
