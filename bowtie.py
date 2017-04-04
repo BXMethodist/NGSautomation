@@ -107,10 +107,14 @@ def ENC_pair(sample_id, pair_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
-    pbs.write("wget https://www.encodeproject.org/files/" + sample_id + "/@@download/" + sample_id + ".fastq.gz\n")
-    pbs.write("wget https://www.encodeproject.org/files/" + pair_id + "/@@download/" + pair_id + ".fastq.gz\n")
-    pbs.write("gunzip "+sample_id + ".fastq.gz\n")
-    pbs.write("gunzip " + pair_id + ".fastq.gz\n")
+
+    if not os.path.isfile(sample_id+'.fastq'):
+        pbs.write("wget https://www.encodeproject.org/files/" + sample_id + "/@@download/" + sample_id + ".fastq.gz\n")
+        pbs.write("gunzip " + sample_id + ".fastq.gz\n")
+    if not os.path.isfile(pair_id+'.fastq'):
+        pbs.write("wget https://www.encodeproject.org/files/" + pair_id + "/@@download/" + pair_id + ".fastq.gz\n")
+        pbs.write("gunzip " + pair_id + ".fastq.gz\n")
+
     pbs.write('cat ' + sample_id + '.fastq ' + pair_id + '.fastq >' + sample_id + '.fastq' + '\n')
     pbs.write(bowtie_cmd + sample_id + ".fastq " + sample_id + ".bowtie\n")
     # pbs.write("rm " + bowtie_path + name + ".fastq\n")
@@ -147,8 +151,11 @@ def ENC_single(sample_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
-    pbs.write("wget https://www.encodeproject.org/files/" + sample_id + "/@@download/" + sample_id + ".fastq.gz\n")
-    pbs.write("gunzip "+sample_id + ".fastq.gz\n")
+
+    if not os.path.isfile(sample_id+'.fastq'):
+        pbs.write("wget https://www.encodeproject.org/files/" + sample_id + "/@@download/" + sample_id + ".fastq.gz\n")
+        pbs.write("gunzip " + sample_id + ".fastq.gz\n")
+
     pbs.write(bowtie_cmd + sample_id + ".fastq " + sample_id + ".bowtie\n")
     # pbs.write("rm " + bowtie_path + name + ".fastq\n")
     # pbs.write("rm " + bowtie_path + name + "_1.fastq\n")
@@ -192,30 +199,40 @@ def bowtie(search_list, metadata_list):
 
         species = search.ix[sample_id, 'Organism']
 
-        if sample_id in samples:
-            print sample_id
-            continue
-        else:
-            samples.add(sample_id)
-            if sample_id.startswith('ENC'):
-                if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
+        if sample_id.startswith('ENC'):
+            if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
+                if sample_id not in samples:
                     ENC_single(sample_id, nodes[node_index], species)
-                elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
-                    pair_id = enc_metadata.ix[sample_id, 'Paired with']
+                    samples.add(sample_id)
+                else:
+                    continue
+            elif enc_metadata.ix[sample_id, 'Run type'] == 'paired-ended':
+                pair_id = enc_metadata.ix[sample_id, 'Paired with']
+                if sample_id not in samples and pair_id not in samples:
+                    samples.add(sample_id)
                     samples.add(pair_id)
                     ENC_pair(sample_id, pair_id, nodes[node_index], species)
-            if sample_id.startswith("GSM"):
-                SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
-                if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
-                    SRR_single(SRR_id, node_id=nodes[node_index], species=species)
-                elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
-                    SRR_pair(SRR_id, nodes[node_index], species)
+                elif sample_id in samples:
+                    samples.add(pair_id)
+                    continue
+                elif pair_id in samples:
+                    samples.add(sample_id)
+                    continue
+        if sample_id.startswith("GSM"):
+            if sample_id in samples:
+                continue
+            samples.add(sample_id)
+            SRR_id = gsm_metadata.ix[sample_id, 'Run_ID']
+            if gsm_metadata.ix[sample_id, 'Run type'] == 'SINGLE':
+                SRR_single(SRR_id, node_id=nodes[node_index], species=species)
+            elif gsm_metadata.ix[sample_id, 'Run type'] == 'PAIRED':
+                SRR_pair(SRR_id, nodes[node_index], species)
 
         if pd.isnull(input_id):
             results.append((sample_id, ''))
         else:
             results.append((sample_id, input_id))
-            if input_id in samples:
+            if os.path.isfile(input_id):
                 continue
             else:
                 samples.add(input_id)
