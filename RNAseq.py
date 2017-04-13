@@ -96,19 +96,24 @@ def get_tophatalign_result(path, output, type="paired", SRRinfo="/home/tmhbxx3/s
     # SRRinfo is the place save SRR object information
     # sample_type is the GSM to sample type csv file.
 
-    results = {}
-    samples = os.listdir(path)
+results = {}
+samples = os.listdir(path)
 
-    if not path.endswith("/"):
-        path += "/"
-    for sample in samples:
-        file_path = path+sample+"/align_summary.txt"
+if not path.endswith("/"):
+    path += "/"
+for sample in samples:
+    file_path = path+sample+"/align_summary.txt"
+    try:
         sample_obj = open(file_path, "r")
+        print file_path
+
         info = sample_obj.readlines()
         sample_obj.close()
 
         for line in info:
             print line
+    except:
+        pass
 
         # total_reads = 0
 
@@ -407,7 +412,7 @@ def HTSeq(path):
     file_names = [x for x in os.listdir(path) if x.endswith(".bam")]
 
     for name in file_names:
-        cmd = "htseq-count -f bam -s no -m intersection-nonempty -i gene_id " + name + " /archive/tmhkxc48/ref_data/hg19/hg19.ucscgenes.knowngene.exon.anno.gtf > " + name[
+        cmd = "htseq-count -f bam -s no -m intersection-nonempty -i gene_id " + name + " /archive/tmhkxc48/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf > " + name[
                                                                                                                                                                       :-4] + "_count.txt"
         os.system(cmd)
 

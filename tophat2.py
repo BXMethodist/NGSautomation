@@ -22,7 +22,7 @@ def runTopHat2(samplelists, finishedjob=[], tophatIndex=" /archive/tmhkxc48/ref_
         elif len(pair) == 2:
             runTopHatPair(pair, tophatIndex, node_id)
         finishedjob.append(pair)
-        break
+        #break
     return finishedjob
 
 def runTopHatSingle(sample, tophatIndex, node_id):
@@ -132,6 +132,66 @@ def pair_files(path='./'):
         pairs.append((name, find_most_similar(name, files)))
     return pairs
 
-pairs = pair_files()
-print pairs
-runTopHat2(pairs)
+def tophat2_single_result(directories):
+    """
+    :param directories: list of directories
+    :return:
+    """
+    columns = ['total_reads', 'mapped_reads']
+    results = []
+    folders_names = []
+    for folder in directories:
+        folder = folder[:-1] if folder.endswith('/') else folder
+        try:
+            file_name = folder + "/align_summary.txt"
+            f = open(file_name, "r")
+            info = f.readlines()
+            f.close()
+        except:
+            continue
+
+        name_index = folder.rfind('/') + 1 if folder.rfind('/') != -1 else 0
+        folder_name = folder[name_index:]
+        folders_names.append(folder_name)
+
+        cur_total_reads = info[1][info[1].find(":") + 1:].strip()
+        cur_mapped_reads = info[10][info[10].find(":") + 1:].strip()
+        results.append((cur_total_reads, cur_mapped_reads))
+    df = pd.DataFrame(results, index=folders_names, columns=columns)
+
+    df.to_csv("tophat2_single_result.csv")
+    return df
+
+def tophat2_pair_result(directories):
+    """
+    :param directories: list of directories
+    :return:
+    """
+    columns = ['total_reads', 'mapped_reads']
+    results = []
+    folders_names = []
+    for folder in directories:
+        folder = folder[:-1] if folder.endswith('/') else folder
+        try:
+            file_name = folder + "/align_summary.txt"
+            f = open(file_name, "r")
+            info = f.readlines()
+            f.close()
+        except:
+            continue
+
+        name_index = folder.rfind('/') + 1 if folder.rfind('/') != -1 else 0
+        folder_name = folder[name_index:]
+        folders_names.append(folder_name)
+
+        cur_total_reads = info[1][info[1].find(":")+1:].strip()
+        cur_mapped_reads = info[10][info[10].find(":")+1:].strip()
+        results.append((cur_total_reads, cur_mapped_reads))
+    df = pd.DataFrame(results, index=folders_names, columns=columns)
+
+    df.to_csv("tophat2_pair_result.csv")
+    return df
+
+samplelists = [[x] for x in os.listdir("./") if x.endswith(".gz")]
+
+runTopHat2(samplelists)

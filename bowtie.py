@@ -26,7 +26,7 @@ def SRR_single(sample_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l nodes=1:ppn=8\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd "+os.getcwd()+"\n")
     pbs.write("module load python/2.7.11\n")
     pbs.write("wget https://sra-download.ncbi.nlm.nih.gov/srapub/"+sample_id+'\n')
@@ -64,7 +64,7 @@ def SRR_pair(sample_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l nodes=1:ppn=8\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
     pbs.write("wget https://sra-download.ncbi.nlm.nih.gov/srapub/" + sample_id + '\n')
@@ -104,7 +104,7 @@ def ENC_pair(sample_id, pair_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l nodes=1:ppn=8\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
 
@@ -148,7 +148,7 @@ def ENC_single(sample_id, node_id, species='Homo sapien'):
     pbs.write("#PBS -l walltime=96:00:00\n")
     pbs.write("#PBS -l nodes=1:ppn=8\n")
     pbs.write("#PBS -l pmem=16000mb\n")
-    pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd " + os.getcwd() + "\n")
     pbs.write("module load python/2.7.11\n")
 
@@ -197,7 +197,7 @@ def bowtie(search_list, metadata_list):
 
         node_index = i % 6
 
-        species = search.ix[sample_id, 'Organism']
+        species = search.ix[sample_id, 'Species']
 
         if sample_id.startswith('ENC'):
             if enc_metadata.ix[sample_id, 'Run type'] == 'single-ended':
@@ -254,6 +254,6 @@ def bowtie(search_list, metadata_list):
     df.to_csv('sample_input_pair.csv', index=None, header=False)
     return results
 
-bowtie("Search_ResultHomo_sapiensWithBMI1_ENC.csv", "BMI1_chipseq_metadata.txt")
+bowtie("search.csv", "query.txt")
 
 

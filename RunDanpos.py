@@ -81,5 +81,12 @@ def RunDanpos(search, metadata, sample_input="sample_input_pair.csv"):
         else:
             danpos_input(sample_id, input_id, search_df, metadata_df, node_id)
 
+def move_danpos_wig(path='./'):
+    os.system('mkdir ../wigs')
+    folders = [x for x in os.listdir(path) if os.path.isdir(x)]
+    for folder in folders:
+        cur_path = path+folder+'/pooled/'
+        os.system('mv '+cur_path+'*.wig ../wigs/')
 
-RunDanpos("Search_ResultHomo_sapiensWithBMI1_ENC.csv", "BMI1_chipseq_metadata.txt")
+RunDanpos("search.csv", "query.txt")
+#move_danpos_wig()
