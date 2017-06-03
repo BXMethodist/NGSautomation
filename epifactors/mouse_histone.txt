@@ -1,0 +1,74 @@
+OFFICIAL_GENE_SYMBOL	Name	Species
+PRM3	protamine 3(Prm3)	Mus musculus
+PRM2	protamine 2(Prm2)	Mus musculus
+PRM1	protamine 1(Prm1)	Mus musculus
+H2AFV	H2A histone family, member V(H2afv)	Mus musculus
+HIST1H3F	histone cluster 1, H3f(Hist1h3f)	Mus musculus
+H1FNT	H1 histone family, member N, testis-specific(H1fnt)	Mus musculus
+HIST1H2AL	histone cluster 1, H2al(Hist1h2al)	Mus musculus
+H3F3C	H3 histone, family 3C(H3f3c)	Mus musculus
+HIST1H1B	histone cluster 1, H1b(Hist1h1b)	Mus musculus
+HIST1H1A	histone cluster 1, H1a(Hist1h1a)	Mus musculus
+HIST1H2AG	histone cluster 1, H2ag(Hist1h2ag)	Mus musculus
+HIST1H2AE	histone cluster 1, H2ae(Hist1h2ae)	Mus musculus
+HIST1H2BC	histone cluster 1, H2bc(Hist1h2bc)	Mus musculus
+HIST1H2AD	histone cluster 1, H2ad(Hist1h2ad)	Mus musculus
+HIST1H2AC	histone cluster 1, H2ac(Hist1h2ac)	Mus musculus
+HIST1H2AA	histone cluster 1, H2aa(Hist1h2aa)	Mus musculus
+HIST3H2A	histone cluster 3, H2a(Hist3h2a)	Mus musculus
+HIST1H4K	histone cluster 1, H4k(Hist1h4k)	Mus musculus
+HIST1H4J	histone cluster 1, H4j(Hist1h4j)	Mus musculus
+HIST1H4I	histone cluster 1, H4i(Hist1h4i)	Mus musculus
+HIST1H4F	histone cluster 1, H4f(Hist1h4f)	Mus musculus
+HIST1H4D	histone cluster 1, H4d(Hist1h4d)	Mus musculus
+H2AFB1	H2A histone family, member B1(H2afb1)	Mus musculus
+HIST1H4C	histone cluster 1, H4c(Hist1h4c)	Mus musculus
+H2AFB3	H2A histone family, member B3(H2afb3)	Mus musculus
+HIST1H3I	histone cluster 1, H3i(Hist1h3i)	Mus musculus
+HIST1H3H	histone cluster 1, H3h(Hist1h3h)	Mus musculus
+HIST1H3B	histone cluster 1, H3b(Hist1h3b)	Mus musculus
+HIST1H3E	histone cluster 1, H3e(Hist1h3e)	Mus musculus
+H3F3B	H3 histone, family 3B(H3f3b)	Mus musculus
+HIST1H3C	histone cluster 1, H3c(Hist1h3c)	Mus musculus
+CENPA	centromere protein A(Cenpa)	Mus musculus
+HIST1H3D	histone cluster 1, H3d(Hist1h3d)	Mus musculus
+HIST1H1D	histone cluster 1, H1d(Hist1h1d)	Mus musculus
+H1FOO	H1 histone family, member O, oocyte-specific(H1foo)	Mus musculus
+H3F3A	H3 histone, family 3A(H3f3a)	Mus musculus
+H1F0	H1 histone family, member 0(H1f0)	Mus musculus
+HIST1H2BL	histone cluster 1, H2bl(Hist1h2bl)	Mus musculus
+HIST1H2BK	histone cluster 1, H2bk(Hist1h2bk)	Mus musculus
+HIST1H2BN	histone cluster 1, H2bn(Hist1h2bn)	Mus musculus
+HIST1H2BM	histone cluster 1, H2bm(Hist1h2bm)	Mus musculus
+HIST1H2AI	histone cluster 1, H2ai(Hist1h2ai)	Mus musculus
+HIST1H1T	histone cluster 1, H1t(Hist1h1t)	Mus musculus
+HIST2H2BE	histone cluster 2, H2be(Hist2h2be)	Mus musculus
+HIST2H2AC	histone cluster 2, H2ac(Hist2h2ac)	Mus musculus
+HIST1H2BA	histone cluster 1, H2ba(Hist1h2ba)	Mus musculus
+HIST1H2BB	histone cluster 1, H2bb(Hist1h2bb)	Mus musculus
+HIST1H2BE	histone cluster 1, H2be(Hist1h2be)	Mus musculus
+HIST1H2BF	histone cluster 1, H2bf(Hist1h2bf)	Mus musculus
+HIST1H2BG	histone cluster 1, H2bg(Hist1h2bg)	Mus musculus
+HIST1H2BH	histone cluster 1, H2bh(Hist1h2bh)	Mus musculus
+HIST1H2BJ	histone cluster 1, H2bj(Hist1h2bj)	Mus musculus
+HIST1H2AH	histone cluster 1, H2ah(Hist1h2ah)	Mus musculus
+HIST1H2AK	histone cluster 1, H2ak(Hist1h2ak)	Mus musculus
+HIST1H3A	histone cluster 1, H3a(Hist1h3a)	Mus musculus
+HIST1H4A	histone cluster 1, H4a(Hist1h4a)	Mus musculus
+HIST1H2AB	histone cluster 1, H2ab(Hist1h2ab)	Mus musculus
+HIST1H4B	histone cluster 1, H4b(Hist1h4b)	Mus musculus
+HIST1H2AJ	histone cluster 1, H2aj(Hist1h2aj)	Mus musculus
+H2AFB2	H2A histone family, member B2(H2afb2)	Mus musculus
+H2AFY	H2A histone family, member Y(H2afy)	Mus musculus
+H2AFX	H2A histone family, member X(H2afx)	Mus musculus
+H1FX	H1 histone family, member X(H1fx)	Mus musculus
+H2AFJ	H2A histone family, member J(H2afj)	Mus musculus
+H2AFY2	H2A histone family, member Y2(H2afy2)	Mus musculus
+H2AFZ	H2A histone family, member Z(H2afz)	Mus musculus
+H2BFM	H2B histone family, member M(H2bfm)	Mus musculus
+HIST2H2AB	histone cluster 2, H2ab(Hist2h2ab)	Mus musculus
+HIST1H1E	histone cluster 1, H1e(Hist1h1e)	Mus musculus
+HIST4H4	histone cluster 4, H4(Hist4h4)	Mus musculus
+HIST1H1C	histone cluster 1, H1c(Hist1h1c)	Mus musculus
+HIST1H4H	histone cluster 1, H4h(Hist1h4h)	Mus musculus
+HIST1H3G	histone cluster 1, H3g(Hist1h3g)	Mus musculus

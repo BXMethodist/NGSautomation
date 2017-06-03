@@ -3,7 +3,7 @@ import os, pandas as pd
 def wigToBigWig(wigfilePath, wigToBigWigPath='/home/tmhbxx3/archive/tools/ucsc/wigToBigWig', chromsize=''):
     outputname = wigfilePath[:-4]+".bw"
     print " ".join([wigToBigWigPath, '-clip', wigfilePath, chromsize, outputname])
-    os.system(" ".join([wigToBigWigPath, wigfilePath, chromsize, outputname]))
+    # os.system(" ".join([wigToBigWigPath, wigfilePath, chromsize, outputname]))
 
 def wigToBigWig_main(search, metadata, wigfilesPath):
     """
@@ -41,4 +41,9 @@ def wigToBigWig_main(search, metadata, wigfilesPath):
         else:
             print wig
 
-wigToBigWig_main('Search_ResultHomo_sapiensWithBMI1.csv', 'BMI1_chipseq_metadata.txt', './')
+# wigToBigWig_main('Search_ResultHomo_sapiensWithBMI1.csv', 'BMI1_chipseq_metadata.txt', './')
+
+files = [x for x in os.listdir('.') if x.endswith('.wig')]
+
+for wigfilePath in files:
+    wigToBigWig(wigfilePath, wigToBigWigPath='/home/tmhbxx3/archive/tools/ucsc/wigToBigWig', chromsize='/archive/tmhkxc48/ref_data/mm9/mm9.chrom.sizes.xls')

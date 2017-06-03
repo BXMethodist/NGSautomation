@@ -54,7 +54,7 @@ def runTopHatPair(pair, tophatIndex, node_id):
     """
     sample1, sample2 = pair
 
-    common_name = find_common(sample1, sample2)
+    common_name = find_common_name(sample1, sample2)
 
     cmd = "tophat2 -p 8 "
     if common_name.find("/") == -1:
@@ -99,10 +99,31 @@ def find_common(string1, string2):
     :param name2: string 2
     :return: longest common part
     """
-    match = SequenceMatcher(None, string1, string2).find_longest_match(0, len(string1), 0, len(string2))
+    if string2.find('R1') != -1:
+        return 0
+
+    s1 = string1.replace('R1', '')
+    s2 = string2.replace('R2', '')
+    match = SequenceMatcher(None, s1, s2).find_longest_match(0, len(s1), 0, len(s2))
     if match.a != 0 or match.b != 0:
-        return ''
-    return string1[match.a:match.a+match.size]
+        return 0
+    return match.size
+
+def find_common_name(string1, string2):
+    """
+    :param name1: string 1
+    :param name2: string 2
+    :return: longest common part
+    """
+    if string2.find('R1') != -1:
+        return 0
+
+    s1 = string1.replace('R1', '')
+    s2 = string2.replace('R2', '')
+    match = SequenceMatcher(None, s1, s2).find_longest_match(0, len(s1), 0, len(s2))
+    if match.a != 0 or match.b != 0:
+        return 0
+    return s1[match.a:match.a+match.size]
 
 def find_most_similar(string1, strings):
     """
@@ -116,7 +137,7 @@ def find_most_similar(string1, strings):
     for candidate in strings:
         if candidate == string1:
             continue
-        cur_score = len(find_common(string1, candidate))
+        cur_score = find_common(string1, candidate)
         if cur_score > score:
             match = candidate
             score = cur_score
@@ -155,7 +176,7 @@ def tophat2_single_result(directories):
         folders_names.append(folder_name)
 
         cur_total_reads = info[1][info[1].find(":") + 1:].strip()
-        cur_mapped_reads = info[10][info[10].find(":") + 1:].strip()
+        cur_mapped_reads = info[2][info[2].find(":") + 1:info[2].find("(")].strip()
         results.append((cur_total_reads, cur_mapped_reads))
     df = pd.DataFrame(results, index=folders_names, columns=columns)
 
@@ -192,6 +213,30 @@ def tophat2_pair_result(directories):
     df.to_csv("tophat2_pair_result.csv")
     return df
 
-samplelists = [[x] for x in os.listdir("./") if x.endswith(".gz")]
+def moveAndChangeNameForTophat(path, target_path="../bams"):
+    '''
+    move bam files from folders and transfer bam to the target_path
+    :param path: the directory contains tophat_output
+    :param target_path:
+    :return:
+    '''
+    if not os.path.isdir(target_path):
+        os.system("mkdir " + target_path)
 
-runTopHat2(samplelists)
+    for folder in path:
+        old_file_location = folder+"/accepted_hits.bam"
+        new_file_location = target_path+"/"+folder+".bam"
+        os.system("mv " + old_file_location + " "+ new_file_location)
+    return
+
+# directories = [x for x in os.listdir("./") if os.path.isdir(x) and x.endswith("001")]
+#
+moveAndChangeNameForTophat([x for x in os.listdir('.') if x.endswith('_')])
+
+# pairs = pair_files()
+# for p in pairs:
+#     print p
+
+# runTopHat2(pair_files())
+
+# tophat2_pair_result(os.listdir('.'))

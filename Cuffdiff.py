@@ -75,3 +75,8 @@ os.system(cmd)
 
 cmd = "cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/cooklab/Gianni/RNA-seq/FASTQ/trimmed/cuffdiff_together -library-norm-method classic-fpkm --labels NEG,LOW,HIGH /home/tmhbxx3/archive/ref_data/danRer10/danRer10.ensembl_common_name.gtf NEG1.bam,NEG2.bam LOW1.bam,LOW2.bam HIGH1.bam,HIGH2.bam"
 os.system(cmd)
+
+
+Erin
+
+cmd = "cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/Erin/RNA-seq/cuffdiff/individual -library-norm-method classic-fpkm --labels CAA,CAB,CAC,CSA,CSB,CSC,WAA,WAB,WAC,WSA,WSB,WSC /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf CAA_.bam,CAB_.bam,CAC_.bam,CSA_.bam,CSB_.bam,CSC_.bam,WAA_.bam,WAB_.bam,WAC_.bam,WSA_.bam,WSB_.bam,WSC_.bam"

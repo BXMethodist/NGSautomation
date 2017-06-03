@@ -714,3 +714,5 @@ Aligned pairs:   1169591
 
 
  tophat2 -p 8 --mate-std-dev 200 -r 200 -o ./T4tdplusP_S25_L005_ -G /archive/tmhkxc48/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf -T /archive/tmhkxc48/ref_data/mm9/bowtie2/mm9  T4tdplusP_S25_L005_R1_001.fastq T4tdplusP_S25_L005_R2_001.fastq
+
+
