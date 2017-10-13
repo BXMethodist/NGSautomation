@@ -86,6 +86,8 @@ def bowtie_results(path, surffix='.e', pairs='ENC_H3K4me3_sample_pairs.csv'):
         f.close()
         error = True
         filename = error_file[:error_file.find(surffix)]
+        if filename.find('_') != -1:
+            filename = "_".join(sorted(filename.split("_")))
         for line in info:
             if line.startswith("# reads with at least one reported alignment:"):
                 error = False
@@ -125,9 +127,9 @@ def bowtie_results(path, surffix='.e', pairs='ENC_H3K4me3_sample_pairs.csv'):
     for fail in failed:
         if fail not in df['sample_ID'].unique():
             re_failed.append(fail)
-    print re_failed
-    print errors, len(errors)
-    df.to_csv('bowtie_results.csv', index=False)
+    print 'failed files are', re_failed
+    print 'errors files are ', errors, len(errors)
+    df.to_csv('archived_results.csv', index=False)
     return df
 
 def bowtie_results_GEO(path, surffix='.e'):
@@ -270,6 +272,126 @@ def bowtie_results_GEO(path, surffix='.e'):
     df.to_csv('bowtie_GEO_results.csv', index=False)
     return df
 
+def bowtie_results_GEO2():
+    error_files = [x for x in os.listdir('./') if x.find('.e') != -1]
+
+    errors = set()
+
+    failed = set()
+
+    results = {}
+    for error_file in error_files:
+        f = open('./' + error_file, "r")
+        info = f.readlines()
+        f.close()
+        error = True
+
+        name = error_file[error_file.find('SRR'): error_file.find('.e')]
+
+        for line in info:
+            if line.startswith("# reads with at least one reported alignment:"):
+                error = False
+                percentage = int(line[line.find(":") + 1:line.find("(")].strip())
+            if line.startswith("# reads processed:"):
+                reads_number = int(line.split()[-1])
+            if line.startswith("# reads with alignments suppressed due to -m:"):
+                ununique_reads = int(line[line.find(":") + 1:line.find("(")])
+            if line.find("storage exhausted while writing file within file system module") != -1:
+                errors.add(error_file[error_file.find('SRR'): error_file.find('.')])
+            elif line.find("fastq-dump.2.8.0") != -1:
+                errors.add(error_file[error_file.find('SRR'): error_file.find('.')])
+
+        if error:
+            failed.add(error_file[error_file.find('SRR'): error_file.find('.')])
+        else:
+            if name not in results:
+                results[name] = [name, percentage, reads_number, ununique_reads]
+            else:
+                if int(results[name][1]) < int(percentage):
+                    results[name] = [name, percentage, reads_number, ununique_reads]
+
+    # print failed, len(failed)
+
+    print errors, len(errors)
+
+    re_errors = set()
+    re_failed = set()
+
+    together = failed.union(errors)
+
+    for fail in errors:
+        duplicate = set()
+        for error_file in error_files:
+            if error_file.find(fail) != -1:
+                duplicate.add(error_file)
+        # print duplicate
+        duplicate = sorted(list(duplicate), key=lambda x: int(x[x.find('.e') + 2:]))
+        # print duplicate
+
+        f = open('./' + duplicate[-1], "r")
+        info = f.readlines()
+        f.close()
+        error = True
+
+        for line in info:
+            if line.startswith("# reads with at least one reported alignment:"):
+                error = False
+                percentage = float(line[line.find("(") + 1:line.find(")") - 1]) / 100
+            if line.startswith("# reads processed:"):
+                reads_number = int(line.split()[-1])
+            if line.startswith("# reads with alignments suppressed due to -m:"):
+                ununique_reads = float(line[line.find("(") + 1:line.find(")") - 1]) / 100
+            if line.find("storage exhausted while writing file within file system module") != -1:
+                re_errors.add(fail)
+            elif line.find("fastq-dump.2.8.0") != -1:
+                re_errors.add(fail)
+
+        if error:
+            re_failed.add(error_file[error_file.find('SRR'): error_file.find('.')])
+
+    e_out = open('srr_errors.txt', 'w')
+    for e in re_errors:
+        e_out.write(e + '\n')
+    e_out.close()
+
+    print re_errors, len(re_errors)
+    print re_failed, len(re_failed)
+
+    final_results = []
+
+    for value in results.values():
+        final_results.append(value)
+
+    df = pd.DataFrame(final_results)
+    df.columns = ['sample_id', 'unique_mapped_reads', 'total_reads', 'ununique_mapped_reads']
+
+    df.to_csv('bowtie_srr_results.csv', index=None)
+
+    bowties = [b for b in os.listdir('../bowtie') if b.find('_') != -1 and b.endswith('.bowtie')]
+
+    underscore_bowtie = []
+
+    for b in bowties:
+        name = b[:b.find('.bowtie')]
+        names = name.split('_')
+
+        total_reads = 0
+        total_unique_mapped_reads = 0
+        total_ununique_mapped_reads = 0
+
+        for n in names:
+            total_reads += results[n][2]
+            total_unique_mapped_reads += results[n][1]
+            total_ununique_mapped_reads += results[n][3]
+
+        underscore_bowtie.append((name, total_unique_mapped_reads, total_reads, total_ununique_mapped_reads))
+
+    df = pd.DataFrame(underscore_bowtie)
+    df.columns = ['sample_id', 'unique_mapped_reads', 'total_reads', 'ununique_mapped_reads']
+
+    df.to_csv('bowtie_srr_with_combined_results.csv', index=None)
+
+
 
 def seq_depth(meta_table, bowtie_table):
     meta_df = pd.read_csv(meta_table, index_col=0)
@@ -309,12 +431,60 @@ def seq_depth(meta_table, bowtie_table):
 
     bowtie_df['Depth'] = depth
 
-    bowtie_df.to_csv('bowtie_ENC_results.csv')
+    bowtie_df.to_csv('bowtie_archived_results.csv')
 
-bowtie_results('./', surffix='.e')
+# bowtie_results('./', surffix='.e')
+bowtie_results('./', surffix='.e', pairs='archived_sample_input_pair.csv')
+# bowtie_results_GEO('./', surffix='.e')
 # seq_depth('all_ENC_metadata.csv', 'bowtie_results.csv')
+# seq_depth('all_ENC_metadata.csv', 'archived_results.csv')
 
 # J = ENC_biosample_meta('ENCFF000CFR')
 # print J['read_length']
 #
 # [u'read_count', u'controlled_by', u'read_length_units', u'file_type', u'fastq_signature', u'accession', u'dataset', u'quality_metrics', u'href', u'technical_replicates', u'alternate_accessions', u'file_size', u'aliases', u'submitted_file_name', u'dbxrefs', u'uuid', u'file_format', u'read_length', u'content_md5sum', u'schema_version', u'platform', u'flowcell_details', u'replicate', u'@context', u'status', u'run_type', u'biological_replicates', u'submitted_by', u'award', u'lab', u'output_type', u'@id', u'audit', u'output_category', u'superseded_by', u'title', u'date_created', u'md5sum', u'@type']
+
+ENCFF000VIW
+ENCFF000VIY
+
+old:
+ENCFF033EFF_ENCFF642DZU_ENCFF697DBC_ENCFF992XVC
+ENCFF206VSB_ENCFF436GLO_ENCFF771RQM_ENCFF983QXE
+ENCFF164BFO_ENCFF167TRL_ENCFF538CJN_ENCFF763VAH
+ENCFF012SGZ_ENCFF598WCX_ENCFF791SQR
+ENCFF171VJT_ENCFF586OTT_ENCFF660GMT
+ENCFF216QPB_ENCFF421EYR_ENCFF612NOM
+ENCFF280EDH_ENCFF459PPQ_ENCFF562FPJ
+ENCFF222MZG_ENCFF537EVL_ENCFF694EZB_ENCFF768AIX
+ENCFF781LSW_ENCFF800SGR_ENCFF894KBP
+ENCFF035KAM_ENCFF793MUN_ENCFF825QGB
+ENCFF055SGG_ENCFF430BVZ_ENCFF712AIJ_ENCFF823MWD_ENCFF911NYD_ENCFF989CNP
+ENCFF031TQA_ENCFF334GMT_ENCFF920HHA
+ENCFF240OHP_ENCFF521WIC_ENCFF723UTH
+ENCFF000ASR_ENCFF000ATZ
+ENCFF589PJM_ENCFF901NZE_ENCFF997BXV
+ENCFF295XWS_ENCFF450WPF_ENCFF545RKN_ENCFF756KJS
+ENCFF226VXT_ENCFF399DNX_ENCFF499TDD
+ENCFF010SAE_ENCFF095XET_ENCFF242HJI
+ENCFF614IRR_ENCFF845LVP_ENCFF996UDV
+
+new:
+ENCFF033EFF_ENCFF697DBC
+ENCFF436GLO_ENCFF771RQM
+ENCFF164BFO_ENCFF538CJN
+ENCFF598WCX
+ENCFF660GMT
+ENCFF612NOM
+ENCFF562FPJ
+ENCFF694EZB_ENCFF768AIX
+ENCFF894KBP
+ENCFF825QGB
+ENCFF055SGG_ENCFF430BVZ_ENCFF712AIJ_ENCFF989CNP
+ENCFF920HHA
+ENCFF723UTH
+ENCFF000ASR
+ENCFF901NZE
+ENCFF295XWS_ENCFF756KJS
+ENCFF499TDD
+ENCFF010SAE
+ENCFF614IRR

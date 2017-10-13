@@ -137,7 +137,7 @@ python /archive/tmhkxc48/tools/danposTemp/danpos.py selector /home/tmhbxx3/archi
 
 python /archive/tmhkxc48/tools/danposTemp/danpos.py selector /home/tmhbxx3/archive/SREBP/chipseq/wig/SREBP2_peakswithc/pooled/srebp2_treat_GSM694314.bgsub.Fnor.regions.xls --genicSelector TSS:-3000:3000 --gene_file /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.xls --gene_out ./selector/all_gene.xlsx --out ./selector/all_region.xlsx
 
-
+9
 python /archive/tmhkxc48/tools/danposTemp/danpos.py profile /home/tmhbxx3/archive/SREBP/chipseq/wig/SREBP2_peakswithc/pooled/srebp2_treat_GSM694314.bgsub.Fnor.wig --genefile_paths /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.xls,/home/tmhbxx3/archive/JEM_ec_hsc/chip-seq/EC_HEC_up.txt_profilelist.txt,/home/tmhbxx3/archive/JEM_ec_hsc/chip-seq/EC_HEC_down.txt_profilelist.txt --wigfile_aliases SREBP2 --genefile_aliases all_genes,EC_HEC_up_in_HEC,EC_vs_HEC_down_in_HEC --genomic_sites TSS,TTS,CSS,CTS,ESS,ETS --heatmap 1 --flank_up 3000 --flank_dn 3000
 
 
@@ -714,5 +714,27 @@ Aligned pairs:   1169591
 
 
  tophat2 -p 8 --mate-std-dev 200 -r 200 -o ./T4tdplusP_S25_L005_ -G /archive/tmhkxc48/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf -T /archive/tmhkxc48/ref_data/mm9/bowtie2/mm9  T4tdplusP_S25_L005_R1_001.fastq T4tdplusP_S25_L005_R2_001.fastq
+
+
+cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/TERT/TERT2/bam -library-norm-method classic-fpkm --labels TERTPlus,TERTMinus /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf TERTplus.bam TERTminus.bam
+
+
+/home/tmhbxx3/archive/tools/ucsc/wigToBigWig -clip ./GSM947525.Fnor.wig /archive/tmhkxc48/ref_data/hg19/hg19.chrom.sizes.xls ./GSM947525.Fnor.bw;
+
+
+track type=bigWig name="GSM1541011.bgsub.Fnor.bw" description="" visibility=2 db=hg19 color=0,0,255 maxHeightPixels=30:30:30 windowingFunction=maximum viewLimits=0:500 autoScale=auto bigDataUrl=http://cigwiki.houstonmethodist.org/trackhub/boxia/GSM1541011.bgsub.Fnor.bw
+
+
+track type=bigWig name="GSM1541012.bgsub.Fnor.bw" description="" visibility=2 db=hg19 color=0,0,255 maxHeightPixels=30:30:30 windowingFunction=maximum viewLimits=0:500 autoScale=auto bigDataUrl=http://cigwiki.houstonmethodist.org/trackhub/boxia/GSM1541012.bgsub.Fnor.bw
+
+
+track type=bigWig name="GSM947525.Fnor.bw" description="" visibility=2 db=hg19 color=0,0,255 maxHeightPixels=30:30:30 windowingFunction=maximum viewLimits=0:500 autoScale=auto bigDataUrl=http://cigwiki.houstonmethodist.org/trackhub/boxia/GSM947525.Fnor.bw
+
+
+cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/JQ1/GSE84520_macrophage/RNA-seq/cuffdiff -library-norm-method classic-fpkm --labels M0_UT,M1_IFN,M2_IL4 /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf SRR3929129.bam,SRR3929136.bam,SRR3929143.bam SRR3929134.bam,SRR3929141.bam,SRR3929148.bam SRR3929133.bam,SRR3929140.bam,SRR3929147.bam
+
+
+cuffdiff -p 8 --output-dir /home/tmhbxx3/scratch/CIG_lg/RNA-seq/cuffdiff_MSC -library-norm-method classic-fpkm --labels MSC,MSC /archive/tmhkxc48/ref_data/hg19/hg19.ucscgenes.knowngene.exon.anno.gtf MSC.bam MSC.bam
+
 
 

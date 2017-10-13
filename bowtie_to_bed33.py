@@ -1,16 +1,20 @@
 import os, pandas as pd
 
-df = pd.read_csv('ENC_H3K4me3_sample_pairs.csv', index_col=0)
-
-df = df[pd.notnull(df['input'])]
-
-bowties = [index + '.bowtie' for index in df.index]
-path = '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'
-
-print len(bowties)
+# df = pd.read_csv('ENC_H3K4me3_sample_pairs.csv', index_col=0)
+#
+# df = df[pd.notnull(df['input'])]
+#
+# bowties = [index + '.bowtie' for index in df.index]
+# path = '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'
+#
+# print len(bowties)
 # print bowties[107]
 
-for bowtie in bowties[:200]:
+
+path = '/archive2/tmhbxx3/H3K4me3/GEO_sample_with_input/bowtie/'
+bowties = [x for x in os.listdir(path) if x.endswith('.bowtie')]
+# print bowties
+for bowtie in bowties[0:100]:
     f = open(path + bowtie, 'r')
     result = open(bowtie[:-7] +'.tagAlign', 'w')
 

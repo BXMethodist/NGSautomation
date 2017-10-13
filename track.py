@@ -85,15 +85,17 @@ def get_track_own(online_path, local_path='./', suffix='.bw',mouse_tracks=True, 
         if mouse_tracks:
             track_cmd += 'db=mm9 '
 
-        track_cmd += 'color=0,0,255 maxHeightPixels=60:60:60 windowingFunction=maximum autoScale=auto viewLimits=0:50 bigDataUrl=http://cigwiki.houstonmethodist.org/trackhub/boxia/' + online_path + f
+        track_cmd += 'color=0,0,255 maxHeightPixels=60:60:60 windowingFunction=maximum autoScale=auto viewLimits=0:100 bigDataUrl=http://cigwiki.houstonmethodist.org/trackhub/boxia/' + online_path + f
 
         if human_tracks:
             humans.append(track_cmd)
         if mouse_tracks:
             mouse.append(track_cmd)
 
+    out = open('track.txt', 'w')
+
     for t in humans:
-        print t
+        out.write(t +'\n')
 
     print
 
@@ -101,4 +103,4 @@ def get_track_own(online_path, local_path='./', suffix='.bw',mouse_tracks=True, 
         print t
 
 
-get_track_own('Erin/Chip-seq/')
+get_track_own('JQ1/RNA-seq/', './')

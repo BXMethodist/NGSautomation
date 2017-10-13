@@ -16,7 +16,7 @@ def ENC_biosample_meta(biosample_id):
         return None
     return data
 
-def SRR_single(sample_id, node_id, species='Homo sapiens'):
+def SRR_single_bowtie(sample_id, node_id, species='Mus musculus'):
     """
         submit a pbs for SRR single end to generate bowtie result
         :param sample_id: SRR ID
@@ -24,7 +24,6 @@ def SRR_single(sample_id, node_id, species='Homo sapiens'):
         :param species: the species, only for human and mouse
         :return:
         """
-    fastq_dump_cmd = "/home/tmhbxx3/archive/tools/sratoolkit/bin/fastq-dump "
     if species == 'Homo sapiens':
         bowtie_cmd = 'bowtie -p 8 -m 1 --chunkmbs 512 --best /archive/tmhkxc48/ref_data/hg19/bowtie/hg19 '
     elif species == "Mus musculus":
@@ -43,9 +42,7 @@ def SRR_single(sample_id, node_id, species='Homo sapiens'):
     #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
     pbs.write("cd "+os.getcwd()+"\n")
     pbs.write("module load python/2.7.11\n")
-    pbs.write(fastq_dump_cmd + sample_id + '\n')
-    pbs.write(bowtie_cmd + sample_id + ".fastq " + sample_id + ".bowtie\n")
-    pbs.write("rm " + sample_id + ".fastq\n")
+    pbs.write(bowtie_cmd + sample_id +'.fastq ' + sample_id+'.bowtie'+ "\n")
     pbs.close()
     os.system('qsub '+sample_id+".pbs")
     # break
@@ -516,88 +513,8 @@ def bowtie_ENC(ENC_metadata_list):
     # bam_url = 'https://www.encodeproject.org/metadata/type=Experiment&files.file_type=bam/metadata.tsv'
     # bam_df = pd.read_csv(bam_url, sep='\t', dtype=str, index_col=0)
 
-    sample_df = df[(df['Experiment target'] == 'H3K4me3-human') & (df['Assay'] == 'ChIP-seq')]
-
-    # print sample_df.index
-
-    #     exp_metadata = ENC_biosample_meta(experiment)
-    #     bam_count = 0
-    #     if 'files' not in exp_metadata:
-    #         no_files.add((experiment, 'sample'))
-    #     for alignment in exp_metadata['files']:
-    #         if alignment['file_type'] != 'bam' and alignment['output_type'] != 'unfiltered alignments' and \
-    #                 alignment['output_category'] != 'alignment':
-    #             continue
-    #
-    #         if 'derived_from' not in alignment:
-    #             print "no derived from information?", alignment['accession'], experiment
-    #             no_derived_from.add((alignment['accession'], experiment, 'sample'))
-    #             continue
-    #
-    #         cur_fastqs = [x.replace('/files/', '').replace('/','').strip() for x in alignment['derived_from']]
-    #         print cur_fastqs
-    #
-    #
-    #         final_input_fastqs = set()
-    #
-    #         related_input_exp = set()
-    #
-    #         related_input_fastq = set()
-    #
-    #         for fastq in cur_fastqs:
-    #             if fastq not in sample_df.index:
-    #                 continue
-    #             if not pd.isnull(sample_df.ix[fastq, 'Controlled by']):
-    #                 known_inputs = [input.replace('/', '').replace('files', '') for input in
-    #                                 sample_df.ix[fastq, 'Controlled by'].split(',')]
-    #
-    #                 for cur_input in known_inputs:
-    #                     related_input_fastq.add(cur_input)
-    #                     if cur_input in df.index:
-    #                         if not pd.isnull(df.ix[cur_input, 'Paired with']):
-    #                             paired_input = df.ix[cur_input, 'Paired with']
-    #                             related_input_fastq.add(paired_input.strip())
-    #                             if paired_input in df.index:
-    #                                 related_input_exp.add(df.ix[paired_input, 'Experiment accession'])
-    #                         related_input_exp.add(df.ix[cur_input, 'Experiment accession'])
-    #         for input_exp in related_input_exp:
-    #             cur_input_meta = ENC_biosample_meta(input_exp)
-    #             if 'files' not in cur_input_meta:
-    #                 print 'no files in metada?!', input_exp
-    #                 no_files.add((input_exp, 'input'))
-    #                 continue
-    #             for input_alignment in cur_input_meta['files']:
-    #                 if input_alignment['file_type'] != 'bam' and input_alignment['output_type'] != 'unfiltered alignments' and \
-    #                                 input_alignment['output_category'] != 'alignment':
-    #                     continue
-    #
-    #                 if 'derived_from' not in input_alignment:
-    #                     print "no derived from information?", input_alignment['accession'], input_exp
-    #                     no_derived_from.add((input_alignment['accession'], input_exp, 'input'))
-    #                     continue
-    #                 cur_input_fastqs = [x.replace('/files/', '').replace('/','').strip() for x in input_alignment['derived_from']]
-    #
-    #                 input_real = False
-    #                 for cur_input_fastq in cur_input_fastqs:
-    #                     if cur_input_fastq in related_input_fastq:
-    #                         input_real = True
-    #                         break
-    #                 if input_real:
-    #                     final_input_fastqs.add(tuple(cur_input_fastqs))
-    #         samples[tuple(cur_fastqs)] = final_input_fastqs
-    #
-    #         # cur_samples.add(sample_df.ix[id, 'Paired with'])
-    #
-    #         bam_count += 1
-    #     if bam_count == 0:
-    #         print "no bam ?!", experiment
-    #         bam_not_covered_exp.add(experiment)
-    #
-    #
-    # print len(samples)
-    # print 'no bam', bam_not_covered_exp
-    # print 'no files', no_files
-    # print 'no derived from', no_derived_from
+    sample_df = df[(df['Experiment target'] == 'H3K4me3-human') & (df['Assay'] == 'ChIP-seq') &
+                   (df['File Status'] != 'archived')]
 
     for experiment in sample_df['Experiment accession'].unique():
         replicates = sample_df[sample_df['Experiment accession'] == experiment]['Biological replicate(s)'].unique()
@@ -646,20 +563,20 @@ def bowtie_ENC(ENC_metadata_list):
     # step 2 cat the fastq in each group and run bowtie
     results = []
 
-    count = 0
-    finished = [x for x in os.listdir('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/') if x.endswith('bowtie')]
-    # finished = []
-    for i in range(len(finished)):
-        x = finished[i]
-        x = x[:-7]
-        if x.find('_') != -1:
-            x = tuple(sorted(x.split('_')))
-        else:
-            x = tuple(x.split("_"))
-        finished[i] = x
-
-    finished = set()
-    unfinished = set()
+    # count = 0
+    # finished = [x for x in os.listdir('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/') if x.endswith('bowtie')]
+    # # finished = []
+    # for i in range(len(finished)):
+    #     x = finished[i]
+    #     x = x[:-7]
+    #     if x.find('_') != -1:
+    #         x = tuple(sorted(x.split('_')))
+    #     else:
+    #         x = tuple(x.split("_"))
+    #     finished[i] = x
+    #
+    # finished = set()
+    # unfinished = set()
 
     # count = set()
     #
@@ -673,63 +590,63 @@ def bowtie_ENC(ENC_metadata_list):
 
     for key, value in samples.items():
         # print key, value
-        if 0 <= count < 2000:
-            if len(value) >0:
-                cur_key = tuple(sorted(key))
-                if cur_key not in finished:
-                    if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+'_'.join(cur_key) + '.bowtie'):
-                        ENC_multiple_bowtie(cur_key)
-                        print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+'_'.join(cur_key) + '.bowtie'
-                        # unfinished.add(cur_key)
-                    pass
-
-                    # for cur_k in cur_key:
-                    #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+cur_k + '.bowtie'):
-                    #         ENC_multiple_bowtie([cur_k])
-
-
-                cur_value = tuple(sorted(value))
-                if cur_value not in finished:
-                    if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(list(cur_value)) + '.bowtie'):
-                        print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/' + '_'.join(list(cur_value)) + '.bowtie'
-                        ENC_multiple_bowtie(cur_value)
-                        unfinished.add(cur_value)
-                    pass
-
-                    # for cur_v in cur_value:
-                    #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/'+cur_v + '.bowtie'):
-                    #         ENC_multiple_bowtie([cur_v])
-
-            else:
-                cur_key = tuple(sorted(key))
-                if cur_key not in finished:
-                    if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(cur_key) + '.bowtie'):
-                        print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(cur_key) + '.bowtie'
-                        ENC_multiple_bowtie(cur_key)
-                        unfinished.add(cur_key)
-                        pass
-                    pass
-
-                    # for cur_k in cur_key:
-                    #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/'+cur_k + '.bowtie'):
-                    #         ENC_multiple_bowtie([cur_k])
-
-        if len(value) > 0:
-
-            count += 1
-        else:
-            count += 1
+        # if 0 <= count < 2000:
+        #     if len(value) >0:
+        #         cur_key = tuple(sorted(key))
+        #         if cur_key not in finished:
+        #             if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+'_'.join(cur_key) + '.bowtie'):
+        #                 ENC_multiple_bowtie(cur_key)
+        #                 print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+'_'.join(cur_key) + '.bowtie'
+        #                 # unfinished.add(cur_key)
+        #             pass
+        #
+        #             # for cur_k in cur_key:
+        #             #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/'+cur_k + '.bowtie'):
+        #             #         ENC_multiple_bowtie([cur_k])
+        #
+        #
+        #         cur_value = tuple(sorted(value))
+        #         if cur_value not in finished:
+        #             if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(list(cur_value)) + '.bowtie'):
+        #                 print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/' + '_'.join(list(cur_value)) + '.bowtie'
+        #                 ENC_multiple_bowtie(cur_value)
+        #                 unfinished.add(cur_value)
+        #             pass
+        #
+        #             # for cur_v in cur_value:
+        #             #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/'+cur_v + '.bowtie'):
+        #             #         ENC_multiple_bowtie([cur_v])
+        #
+        #     else:
+        #         cur_key = tuple(sorted(key))
+        #         if cur_key not in finished:
+        #             if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(cur_key) + '.bowtie'):
+        #                 print '/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + '_'.join(cur_key) + '.bowtie'
+        #                 ENC_multiple_bowtie(cur_key)
+        #                 unfinished.add(cur_key)
+        #                 pass
+        #             pass
+        #
+        #             # for cur_k in cur_key:
+        #             #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie/'+cur_k + '.bowtie'):
+        #             #         ENC_multiple_bowtie([cur_k])
+        #
+        # if len(value) > 0:
+        #
+        #     count += 1
+        # else:
+        #     count += 1
         results.append(('_'.join(sorted(key)), '_'.join(sorted(value))))
-    print count
+    # print count
     result_df = pd.DataFrame(results)
 
     result_df.columns = ['sample', 'input']
 
     result_df.to_csv('ENC_H3K4me3_sample_pairs.csv', index=None)
 
-    print len(finished)
-    #
-    print len(unfinished)
+    # print len(finished)
+    # #
+    # print len(unfinished)
 
     return results
 
@@ -772,10 +689,10 @@ def bowtie_ENC(ENC_metadata_list):
 
 
 
-
-samples = bowtie_ENC('H3K4me3_ENC_metadata.tsv')
-
-print len(samples)
+#
+# samples = bowtie_ENC('H3K4me3_ENC_metadata.tsv')
+#
+# print len(samples)
 
 
 # File accession
@@ -789,3 +706,59 @@ print len(samples)
 # ENCFF769IGM     ENCLB399AFA                        3                    3_2
 # ENCFF000CTV     ENCLB695AMT                        3                    3_1
 # set(['ENCFF000CDX', 'ENCFF399MSH'])
+
+# f = open('new_archived.txt', 'r')
+# ids = [x.strip() for x in f.readlines()]
+# f.close()
+#
+# for id in ids:
+#     ENC_multiple_bowtie(id.split('_'))
+
+# f = open('ENC_CIG_datasets.csv', 'r')
+# lines = [x.strip() for x in f.readlines()]
+# f.close()
+#
+# finished = set()
+#
+# for line in lines:
+#     line = line.split(',')[0:2]
+#     for id in line:
+#         if id.startswith('ENC') and id not in finished:
+#             print id
+#             finished.add(id)
+#             ENC_multiple_bowtie(id.split('_'))
+
+# f = open('GEO_CIG_datasets.csv', 'r')
+# lines = [x.strip() for x in f.readlines()]
+# f.close()
+#
+# finished = set()
+#
+# for line in lines:
+#     line = line.split(',')[0:2]
+#     for id in line:
+#         if id.startswith('SRR') and id not in finished:
+#             print id
+#             finished.add(id)
+#             SRR_single(id, 0)
+
+# df = pd.read_csv('CIG_datasets.csv')
+#
+# bowties = list(df['sample'].values) + list(df['input'].values)
+#
+# bowties = list(set(bowties))
+#
+# for b in bowties:
+#     if os.path.isfile(b+'.bowtie'):
+#         continue
+#     elif b.startswith('ENC'):
+#         print b
+#         ENC_multiple_bowtie(b.split('_'))
+#     elif b.startswith('SRR'):
+#         print b
+#         SRR_single(b, 0)
+
+# for srr in ['SRR1609011', 'SRR1609015']:
+#     SRR_single(srr, 0)
+
+bowtie_ENC('')

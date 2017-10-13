@@ -13,6 +13,39 @@ import matplotlib.pyplot as plt
 ### /home/tmhbxx3/tools/hisat2-2.0.5/hisat2
 ### /home/tmhbxx3/archive/ref_data/hg19/hisat2/hg19
 
+def SRR_single_tophat2(sample_id, node_id, species='Mus musculus'):
+    """
+        submit a pbs for SRR single end to generate bowtie result
+        :param sample_id: SRR ID
+        :param node_id: specify the node, sometimes some node does not work.
+        :param species: the species, only for human and mouse
+        :return:
+        """
+    if species == 'Homo sapiens':
+        tophat2cmd = 'tophat2 -p 8 -o '+sample_id + ' /archive/tmhkxc48/ref_data/hg19/bowtie2/hg19 '+sample_id+'.fastq'
+    elif species == "Mus musculus":
+        tophat2cmd = 'tophat2 -p 8 -o '+sample_id + ' /archive/tmhkxc48/ref_data/mm9/bowtie2 '+sample_id+'.fastq'
+
+    pbs = open(sample_id+".pbs", "w")
+    pbs.write("#!/bin/bash\n")
+    pbs.write("#PBS -r n\n")
+    pbs.write("#PBS -N bowtie_"+sample_id+'\n')
+    pbs.write("#PBS -q highmem\n")
+    pbs.write("#PBS -m e\n")
+    pbs.write("#PBS -M bxia@houstonmethodist.org\n")
+    pbs.write("#PBS -l walltime=32:00:00\n")
+    pbs.write("#PBS -l nodes=1:ppn=8\n")
+    pbs.write("#PBS -l pmem=16000mb\n")
+    #pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    pbs.write("cd "+os.getcwd()+"\n")
+    pbs.write("module load python/2.7.11\n")
+    pbs.write(tophat2cmd+ "\n")
+    pbs.close()
+    os.system('qsub '+sample_id+".pbs")
+    # break
+    return
+
+
 
 def runTopHat2(path, surffix_R1, surffix_R2, file_type, finishedjob=[], tophatIndex=" /archive/tmhkxc48/ref_data/hg19/bowtie2/hg19 "):
     cmd = "tophat2 -p 8 "
@@ -66,7 +99,7 @@ def runFastqdump(list, path):
             os.system(cmd + path +name)
     return
 
-def moveAndChangeNameForTophat(path):
+def moveAndChangeNameForTophat(path='./'):
     '''
 
     :param path: the directory contains tophat_output
@@ -76,13 +109,13 @@ def moveAndChangeNameForTophat(path):
     if not path.endswith("/"):
         path += "/"
 
-    input_path = path + "tophat_output/"
+    input_path = path
     output_path = path + "bamfiles/"
 
     if not os.path.isdir(output_path):
         os.system("mkdir "+output_path)
 
-    SRRlist = os.listdir(input_path)
+    SRRlist = [ x for x in os.listdir(input_path) if x.startswith('SRR3')]
 
     for SRR_name in SRRlist:
         old_file_location = input_path+SRR_name+"/accepted_hits.bam"

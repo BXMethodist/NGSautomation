@@ -29,6 +29,28 @@ def danpos_no_input(sample_id, search_df, metadata_df, node_id):
     os.system('qsub ' + sample_id + ".pbs")
     return
 
+def danpos_ENC_no_input(sample_id):
+    danpos_cmd = 'python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dpeak '
+    danpos_parameters = ' --smooth_width 0 -c 25000000 --frsz 200 --extend 200 -o ' + os.getcwd() + '/' + sample_id
+
+    cmd = danpos_cmd + sample_id+'.bowtie' + danpos_parameters
+
+    pbs = open(sample_id + ".pbs", "w")
+    pbs.write("#!/bin/bash\n")
+    pbs.write("#PBS -r n\n")
+    pbs.write("#PBS -N danpos_" + sample_id + '\n')
+    pbs.write("#PBS -q mediummem\n")
+    pbs.write("#PBS -m e\n")
+    pbs.write("#PBS -M bxia@houstonmethodist.org\n")
+    pbs.write("#PBS -l walltime=96:00:00\n")
+    pbs.write("#PBS -l pmem=16000mb\n")
+    # pbs.write("#PBS -l nodes=compute-0-" + str(node_id) + "\n")
+    pbs.write("cd " + os.getcwd() + "\n")
+    pbs.write("module load python/2.7.11\n")
+    pbs.write("module load R/3.2.1\n")
+    pbs.write(cmd + '\n')
+    pbs.close()
+
 def danpos_input(sample_id, input_id, search_df, metadata_df, node_id):
     if sample_id.startswith("GSM"):
         sample_id = metadata_df.ix[sample_id, 'Run_ID']
@@ -189,11 +211,11 @@ def RunDanposENC(sample_input="ENC_H3K4me3_sample_pairs.csv"):
                 x.endswith('bowtie')]
 
     ### This is the special part to re-run error bowtie file
-    incomplete_f = open('incomplete.txt', 'r')
-
-    incomplete =[line.strip() for line in incomplete_f]
-    incomplete_f.close()
-    incomplete_set = set()
+    # incomplete_f = open('incomplete.txt', 'r')
+    #
+    # incomplete =[line.strip() for line in incomplete_f]
+    # incomplete_f.close()
+    # incomplete_set = set()
     ###
 
     names = {}
@@ -206,12 +228,12 @@ def RunDanposENC(sample_input="ENC_H3K4me3_sample_pairs.csv"):
             new_name = x
         names[new_name] = x
 
-    print names
+    # print names
 
     nodes = [1, 2, 3, 4, 5, 6]
 
     count = 0
-    for i in range(sample_input_df.shape[0])[0:50]:
+    for i in range(sample_input_df.shape[0]):
         node_id = nodes[i%6]
         sample_id = sample_input_df.ix[i, 'sample']
         input_id = sample_input_df.ix[i, 'input']
@@ -233,15 +255,26 @@ def RunDanposENC(sample_input="ENC_H3K4me3_sample_pairs.csv"):
     ###
 
     # '''
-        if pd.isnull(input_id):
-            continue
-
         if sample_id.find('_') != -1:
             if '_'.join(tuple(sorted(sample_id.split('_')))) in names:
                 sample_id = names['_'.join(tuple(sorted(sample_id.split('_'))))]
             else:
                 print sample_id
                 pass
+
+        if pd.isnull(input_id):
+            print sample_id, 'no input'
+            ## sample without inputs will not be run
+            # if os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + sample_id + '.bowtie') and \
+            #     (not os.path.isfile('./' + sample_id + '.bowtie')):
+            #     os.system("cp /archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/" + sample_id + '.bowtie ' + sample_id + '.bowtie')
+            #     danpos_ENC_no_input(sample_id)
+            # else:
+            #     if not os.path.isfile('/archive2/tmhbxx3/H3K4me3/ENCODE_sample_with_input/bowtie2/' + sample_id + '.bowtie'):
+            #         print sample_id, "bowtie not found"
+            continue
+        else:
+            pass
 
         if input_id.find('_') != -1 and input_id.find(';') == -1:
             if '_'.join(tuple(sorted(input_id.split('_')))) in names:
@@ -491,108 +524,28 @@ def generate_wig(f):
     return
 
 def RunDanposGEO():
-    GSM_SRR_map = defaultdict(set)
-    SRR_GSM_map = {}
-
-    srr_df = pd.read_csv('GEO_sample_input_meta.txt', sep='\t')
-
-    for i in range(srr_df.shape[0]):
-        GSM = srr_df.ix[i, 'SampleName']
-        GSM2 = srr_df.ix[i, 'GSM_ID']
-        if not GSM.startswith('GSM'):
-            GSM = None
-        if pd.isnull(GSM2):
-            GSM2 = None
-        if (GSM is not None and GSM2 is not None) and GSM != GSM2:
-            print GSM, GSM2, srr_df.ix[i, 'Run_ID']
-            continue
-        if GSM2 is not None:
-            final_gsm = GSM2
-        elif GSM is not None:
-            final_gsm = GSM
-        GSM_SRR_map[final_gsm.strip()].add(srr_df.ix[i, 'Run_ID'])
-        SRR_GSM_map[srr_df.ix[i, 'Run_ID']] = final_gsm.strip()
-
-    gsm_df = pd.read_csv('GEO_sample_input.csv')
-    pairs = []
-    for i in range(gsm_df.shape[0]):
-        sample = gsm_df.ix[i, 'Data_ID']
-        input = gsm_df.ix[i, 'Input']
-
-        samples = GSM_SRR_map[sample.strip()]
-        if len(samples) > 1:
-            path = '/archive2/tmhbxx3/H3K4me3/GEO_sample_with_input/bowtie/'
-            cmd = 'cat '
-            name = ''
-            for s in samples:
-                cmd = cmd + path+s+'.bowtie' + ' '
-                name = name+s+'_'
-            name = name[:-1]
-            name = '_'.join(sorted(name.split('_')))
-            cmd = cmd +'>' + path + name +'.bowtie'
-
-            if not os.path.isfile(path+name+'.bowtie'):
-                os.system(cmd)
-                # print cmd
-            samples = set()
-            samples.add(name)
-
-        if len(samples) == 0:
-            print gsm_df.ix[i, 'Data_ID'], GSM_SRR_map[gsm_df.ix[i, 'Data_ID'].strip()]
-            continue
-
-        inputs = set()
-        for f in [x.strip() for x in input.split(',')]:
-            if len(GSM_SRR_map[f]) > 1:
-                path = '/archive2/tmhbxx3/H3K4me3/GEO_sample_with_input/bowtie/'
-                cmd = 'cat '
-                name = ''
-                for j in GSM_SRR_map[f]:
-                    cmd = cmd + path + j + '.bowtie' + ' '
-                    name = name + j + '_'
-                name = name[:-1]
-                name = '_'.join(sorted(name.split('_')))
-                cmd = cmd + '>' + path + name + '.bowtie'
-
-                if not os.path.isfile(path + name + '.bowtie'):
-                    os.system(cmd)
-                    # print cmd
-                inputs.add(name)
-            else:
-                inputs = inputs.union(GSM_SRR_map[f])
-
-        pairs.append((gsm_df.ix[i, 'Data_ID'].strip(), tuple(samples), tuple(inputs)))
+    df = pd.read_csv('GEO_danpos_pair.csv')
     #
     path = '/archive2/tmhbxx3/H3K4me3/GEO_sample_with_input/bowtie/'
-    for p in pairs:
-        sample_id, samples, inputs = p
+    for i in range(df.shape[0])[:300]:
+        sample = df.ix[i, 'Run_ID']
+        input = df.ix[i, 'Input_Run_ID']
+
+        if not os.path.isfile(path+sample+'.bowtie') or not os.path.isfile(path+input+'.bowtie'):
+            continue
+
+        sample_id = df.ix[i, 'Data_ID']
         os.system('mkdir '+sample_id+'_sample')
         os.system('mkdir '+sample_id+'_input')
-        error = False
-        for s in samples:
-            if os.path.isfile(path+s+'.bowtie') and not error and (not os.path.isfile('./'+s+'.bowtie')):
-                os.system('cp '+path+s+'.bowtie '+ './'+sample_id+'_sample/')
-                pass
-            else:
-                error = True
-                break
-        for input in inputs:
-            if os.path.isfile(path + input + '.bowtie') and not error and (not os.path.isfile('./'+input+'.bowtie')):
-                os.system('cp ' + path + input + '.bowtie ' + './' + sample_id + '_input/')
-                pass
-            else:
-                error =True
-                break
-        if not error:
-            GEO_danpos(p)
-            pass
-        else:
-            print p
+
+        os.system('cp ' + path + sample + '.bowtie ' + './' + sample_id + '_sample/')
+        os.system('cp ' + path + input + '.bowtie ' + './' + sample_id + '_input/')
+
+        GEO_danpos(sample_id)
     for pbs in [x for x in os.listdir('./') if x.endswith('.pbs')]:
         os.system('qsub '+pbs)
 
-def GEO_danpos(GSM_pair):
-    sample_id, samples, inputs = GSM_pair
+def GEO_danpos(sample_id):
     danpos_cmd = 'python /archive/tmhkxc48/tools/danpos2.2.3/danpos.py dpeak '
     danpos_parameters = ' --smooth_width 0 -c 25000000 --frsz 200 --extend 200 -o ' + os.getcwd() + '/' + sample_id
 
@@ -629,6 +582,6 @@ def GEO_danpos(GSM_pair):
 # RunDanpos_GEO_single_input("H3K4me3_GEO_search.csv", "H3K4me3_GEO_metadata.txt")
 # move_danpos_wig()
 
-# RunDanposENC()
+# RunDanposENC(sample_input='archived_sample_input_pair.csv')
 
-# RunDanposGEO()
+RunDanposGEO()

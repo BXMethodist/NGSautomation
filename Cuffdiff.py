@@ -1,4 +1,33 @@
-import os
+from itertools import combinations
+import os, pandas as pd
+
+combs = [(x, y) for x in combinations([1,2,3], 2) for y in combinations([4,5,6],2)]
+
+# for x, y in combs:
+#     f = open('_'.join([str(i) for i in x]) + '_'.join([str(j) for j in y])+'.pbs', 'w')
+#     f.write('#!/bin/bash\n')
+#     f.write('#PBS -r n\n')
+#     f.write('#PBS -m e\n')
+#     f.write('#PBS -M bxia@houstonmethodist.org\n')
+#     f.write('#PBS -l walltime=96:00:00\n')
+#     f.write('#PBS -l nodes=1:ppn=8\n')
+#     f.write('#PBS -l pmem=16000mb\n')
+#     f.write('#PBS -q mediummem\n')
+#     f.write('module load python/2.7.11\n')
+#     f.write('cd /home/tmhbxx3/archive/PAF/bams\n')
+#     f.write('cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/PAF/bams/'+ '_'.join([str(i) for i in x]) + '_'.join([str(j) for j in y]) + ' -library-norm-method classic-fpkm --labels WT,PAF /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf '+ ','.join([str(i) + '.bam' for i in x]) + ' ' +  ','.join([str(j)+'.bam' for j in y]) + '\n')
+#     f.close()
+#     os.system('qsub ' + '_'.join([str(i) for i in x]) + '_'.join([str(j) for j in y])+'.pbs')
+
+
+for comb in combs:
+    x, y = comb
+    folder = './' + '_'.join([str(i) for i in x]) + '_'.join([str(j) for j in y]) +'/'
+    df = pd.read_csv(folder+'gene_exp.diff', sep='\t')
+    df = df[df['significant'] == 'yes']
+    print folder, df.shape
+
+
 
 path = "/home/tmhbxx3/archive/encode_ec_vs_hsc/bamfiles/"
 
@@ -80,3 +109,7 @@ os.system(cmd)
 Erin
 
 cmd = "cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/Erin/RNA-seq/cuffdiff/individual -library-norm-method classic-fpkm --labels CAA,CAB,CAC,CSA,CSB,CSC,WAA,WAB,WAC,WSA,WSB,WSC /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf CAA_.bam,CAB_.bam,CAC_.bam,CSA_.bam,CSB_.bam,CSC_.bam,WAA_.bam,WAB_.bam,WAC_.bam,WSA_.bam,WSB_.bam,WSC_.bam"
+
+PAF
+
+cmd = "cuffdiff -p 8 --output-dir /home/tmhbxx3/archive/PAF/cdts-wh.genomics.cn/F17FTSUSAT0305_MUShkkN/IGV/bam/cuffdiff -library-norm-method classic-fpkm --labels WT,PAF /home/tmhbxx3/archive/ref_data/mm9/mm9.20150218.knownGene.exon.anno.gtf 1.sorted.bam,2.sorted.bam,3.sorted.bam 4.sorted.bam,5.sorted.bam,6.sorted.bam"

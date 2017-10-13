@@ -17,7 +17,7 @@ def runTopHat2(samplelists, finishedjob=[], tophatIndex=" /archive/tmhkxc48/ref_
         if pair in finishedjob:
             continue
         n += 1
-        if len(pair) == 1:
+        if len(pair) == 1 or pair[1] is None:
             runTopHatSingle(pair[0], tophatIndex, node_id)
         elif len(pair) == 2:
             runTopHatPair(pair, tophatIndex, node_id)
@@ -99,15 +99,19 @@ def find_common(string1, string2):
     :param name2: string 2
     :return: longest common part
     """
-    if string2.find('R1') != -1:
+    if string2.find('_1.fq.gz') != -1:
         return 0
 
-    s1 = string1.replace('R1', '')
-    s2 = string2.replace('R2', '')
+    s1 = string1.replace('_1.fq.gz', '')
+    s2 = string2.replace('_2.fq.gz', '')
+    # print s1, s2
     match = SequenceMatcher(None, s1, s2).find_longest_match(0, len(s1), 0, len(s2))
-    if match.a != 0 or match.b != 0:
-        return 0
+    # print match.size
     return match.size
+    # print match.size, match.a, match.b
+    # if match.a != 0 or match.b != 0:
+    #     return 0
+    # return match.size
 
 def find_common_name(string1, string2):
     """
@@ -118,11 +122,11 @@ def find_common_name(string1, string2):
     if string2.find('R1') != -1:
         return 0
 
-    s1 = string1.replace('R1', '')
-    s2 = string2.replace('R2', '')
+    s1 = string1.replace('_1.fq.gz', '')
+    s2 = string2.replace('_2.fq.gz', '')
     match = SequenceMatcher(None, s1, s2).find_longest_match(0, len(s1), 0, len(s2))
-    if match.a != 0 or match.b != 0:
-        return 0
+    # if match.a != 0 or match.b != 0:
+    #     return 0
     return s1[match.a:match.a+match.size]
 
 def find_most_similar(string1, strings):
@@ -135,8 +139,9 @@ def find_most_similar(string1, strings):
     score = 0
     match = None
     for candidate in strings:
-        if candidate == string1:
+        if candidate == string1 or candidate.find('_1.fq.gz')!= -1:
             continue
+        # print string1, candidate
         cur_score = find_common(string1, candidate)
         if cur_score > score:
             match = candidate
@@ -148,7 +153,7 @@ def pair_files(path='./'):
 
     pairs = []
     for name in files:
-        if name.find('R2') != -1:
+        if name.find('_2.fq.gz') != -1:
             continue
         pairs.append((name, find_most_similar(name, files)))
     return pairs
@@ -231,12 +236,14 @@ def moveAndChangeNameForTophat(path, target_path="../bams"):
 
 # directories = [x for x in os.listdir("./") if os.path.isdir(x) and x.endswith("001")]
 #
-moveAndChangeNameForTophat([x for x in os.listdir('.') if x.endswith('_')])
-
-# pairs = pair_files()
+# moveAndChangeNameForTophat([x for x in os.listdir('.') if x.endswith('_')])
+#
+# pairs = pair_files('../FASTQ')
 # for p in pairs:
 #     print p
 
-# runTopHat2(pair_files())
+# print pair_files()
+
+runTopHat2(pair_files())
 
 # tophat2_pair_result(os.listdir('.'))
